@@ -9,7 +9,8 @@ import csv
 import random
 
 class HAM_datasets(Dataset):
-    def __inti__(self, config, train=True):
+    
+    def __init__(self, config, train=True):
         super(HAM_datasets,self)
         self.batchsz = config.batchsz  # batch of set, not batch of imgs
         self.n_way = config.n_way  # n-way
