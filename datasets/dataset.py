@@ -50,6 +50,8 @@ class HAM_datasets(Dataset):
         else:
             self.transform = config.test_transformer
 
+        self.mask_transform = config.mask_transformer
+
         """
         path of the dataset (images and masks)
         """
@@ -71,7 +73,6 @@ class HAM_datasets(Dataset):
         
         # generate the batchlist for __getitem__
         self.create_batchs()
-
 
 
     def __getitem__(self, idx):
@@ -123,10 +124,10 @@ class HAM_datasets(Dataset):
 
             if self.transform:
                 support_images = [self.transform(img) for img in support_images]
-                support_masks = [self.transform(mask) for mask in support_masks]
+                support_masks = [self.mask_transform(mask) for mask in support_masks]
                 
                 query_images = [self.transform(img) for img in query_images]
-                query_masks = [self.transform(mask) for mask in query_masks]
+                query_masks = [self.mask_transform(mask) for mask in query_masks]
 
             generation_result = {
                 'support_images': support_images, 'support_masks': support_masks,
@@ -166,12 +167,12 @@ class HAM_datasets(Dataset):
         except Exception as e:
             print(f"Error occurred while copying：{str(e)}")
 
-if __name__ == "__main__":
-    config = setting_config
-    dataset = HAM_datasets(config, train=True)
-    train_loader = DataLoader(dataset,batch_size=8)
-    for i,item in enumerate(train_loader):
-        print(i)
-        print(item)
-    # for item in ham:
-    #     print(item)
+
+"""
+data sturcture:
+variable:
+dataset: len(): config(batch_size)
+dataloader: len: len(dataset)/param(batch_size)  e.g. 64/8 = 8
+train_loader: iteration
+item in train_loader: dictionary: {"support_images":..., "support_masks":..., "query_images":..., "query_masks":...,} 
+"""
