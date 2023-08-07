@@ -96,7 +96,7 @@ class HAM_datasets(Dataset):
         return samples
 
     def get_task(self):
-        sampled_classes = random.sample(self.categories, self.n_way)
+        sampled_classes = random.sample(self.categories, self.n_way)    # No duplicate naturally
         
         support_set = []
         query_set = []
