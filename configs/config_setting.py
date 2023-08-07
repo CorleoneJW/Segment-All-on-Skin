@@ -8,9 +8,9 @@ class setting_config:
     the config of training or testing setting.
     """
     
-    categories = ['mel','bcc']      # the categories of meta learning
+    categories = ['mel','bcc','nv']      # the categories of meta learning
     batch_size = 64                 # the batech size of training or testing
-    n_way = 2                       # n ways, should be smaller than the number of categories
+    n_way = 3                       # n ways, should be smaller than the number of categories
     k_shot = 5                      # k shots, the number of each subset 
     k_query = 5                     # k for the evaluation
     resize_h = 600                    # the height of resize in transformer
@@ -18,6 +18,7 @@ class setting_config:
     startidx = 0                     # the index that data starts
     train_set = "..\\data\\HAM10000\\train" # the root path of train set
     test_set = "..\\data\\HAM10000\\test"  # the root path of test set
+    gpu_id = '3'
 
     train_transformer = transforms.Compose([
         # myNormalize("isic18", train=True),
@@ -32,7 +33,10 @@ class setting_config:
         transforms.ToTensor(),
         # myResize(resize_h, resize_w)
     ])
-
+    mask_transformer = transforms.Compose([     # for train and test dataloader ,the mask transformer are the same
+        maskToTensor(),
+        # myResize(resize_h, resize_w)
+    ])
 
     network = 'egeunet'
     model_config = {
@@ -65,8 +69,6 @@ class setting_config:
     world_size = None
     rank = None
     amp = False
-    gpu_id = '0'
-    batch_size = 8
     epochs = 300
 
     work_dir = 'results/' + network + '_' + datasets + '_' + datetime.now().strftime('%A_%d_%B_%Y_%Hh_%Mm_%Ss') + '/'
