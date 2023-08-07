@@ -7,18 +7,24 @@ class setting_config:
     """
     the config of training or testing setting.
     """
-    
-    categories = ['mel','bcc','nv']      # the categories of meta learning
-    batch_size = 64                 # the batech size of training or testing
+    gpu_id = '3'
+    categories = ['mel','bcc','bkl']      # the categories of meta learning
+    num_classes = len(categories)         # the number of categories
+    epoch_num = 1000                    # the number of training the meta net
+    inner_steps = 5                    # the number of inner steps of iteration
+    batch_size = 64                 # the batch size of training or testing
+    dataloader_bs = 8               # the batch size of dataloader(corresponding to dataloader_bs * n_way * k_shot every batch)
     n_way = 3                       # n ways, should be smaller than the number of categories
-    k_shot = 5                      # k shots, the number of each subset 
-    k_query = 5                     # k for the evaluation
+    k_shot = 5                      # k shots, the number of each subset, k for support set
+    k_query = 5                     # k for the evaluation, k for query set
     resize_h = 600                    # the height of resize in transformer
     resize_w = 450                  # the width of resize in transformer
     startidx = 0                     # the index that data starts
     train_set = "..\\data\\HAM10000\\train" # the root path of train set
     test_set = "..\\data\\HAM10000\\test"  # the root path of test set
-    gpu_id = '3'
+    in_channels = 3                         # According to the RBG image, the input channels should be 3
+    inner_lr = 1e-4
+    outer_lr = 1e-3
 
     train_transformer = transforms.Compose([
         # myNormalize("isic18", train=True),
@@ -38,7 +44,15 @@ class setting_config:
         # myResize(resize_h, resize_w)
     ])
 
-    network = 'egeunet'
+    catStr = ""
+    for i,category in enumerate(categories):
+        if i != 0:
+            catStr = catStr+"+"
+        catStr = catStr + str(category)
+    
+    network = 'maml'
+    work_dir = 'results/' + network + '_' + catStr + '_' + datetime.now().strftime('%A_%d_%B_%Y_%Hh_%Mm_%Ss') + '/'
+
     model_config = {
         'num_classes': 1, 
         'input_channels': 3, 
@@ -58,10 +72,6 @@ class setting_config:
     criterion = GT_BceDiceLoss(wb=1, wd=1)
 
     pretrained_path = './pre_trained/'
-    num_classes = 1
-    input_size_h = 256
-    input_size_w = 256
-    input_channels = 3
     distributed = False
     local_rank = -1
     num_workers = 0
@@ -69,9 +79,6 @@ class setting_config:
     world_size = None
     rank = None
     amp = False
-    epochs = 300
-
-    work_dir = 'results/' + network + '_' + datasets + '_' + datetime.now().strftime('%A_%d_%B_%Y_%Hh_%Mm_%Ss') + '/'
 
     print_interval = 20
     val_interval = 30
