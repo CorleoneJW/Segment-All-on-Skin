@@ -173,6 +173,6 @@ data sturcture:
 variable:
 dataset: len(): config(batch_size)
 dataloader: len: len(dataset)/param(batch_size)  e.g. 64/8 = 8
-train_loader: iteration
-item in train_loader: dictionary: {"support_images":..., "support_masks":..., "query_images":..., "query_masks":...,} 
+train_loader: iteration item in train_loader: dictionary: {"support_images":..., "support_masks":..., "query_images":..., "query_masks":...,}  
+"support_images:" [tensor([[[]]])，tensor([[[]]])] length: n_way * k_shots(k_query)
 """
