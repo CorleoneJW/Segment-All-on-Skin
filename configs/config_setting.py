@@ -7,24 +7,29 @@ class setting_config:
     """
     the config of training or testing setting.
     """
-    gpu_id = '3'
+    gpu_id = '0'
     categories = ['mel','bcc','bkl']      # the categories of meta learning
     num_classes = len(categories)         # the number of categories
-    epoch_num = 1000                    # the number of training the meta net
-    inner_steps = 5                    # the number of inner steps of iteration
-    batch_size = 64                 # the batch size of training or testing
-    dataloader_bs = 8               # the batch size of dataloader(corresponding to dataloader_bs * n_way * k_shot every batch)
+    epoch_num = 9000                    # the number of training the meta net
+    inner_steps = 2                    # the number of inner steps of iteration
+    batch_size = 5                 # the batch size of training or testing
+    dataloader_bs = 1               # the batch size of dataloader(corresponding to dataloader_bs * n_way * k_shot every batch)
     n_way = 3                       # n ways, should be smaller than the number of categories
     k_shot = 5                      # k shots, the number of each subset, k for support set
     k_query = 5                     # k for the evaluation, k for query set
     resize_h = 600                    # the height of resize in transformer
     resize_w = 450                  # the width of resize in transformer
     startidx = 0                     # the index that data starts
-    train_set = "..\\data\\HAM10000\\train" # the root path of train set
-    test_set = "..\\data\\HAM10000\\test"  # the root path of test set
+    train_set = ".\\data\\HAM10000\\train" # the root path of train set
+    test_set = ".\\data\\HAM10000\\test"  # the root path of test set
     in_channels = 3                         # According to the RBG image, the input channels should be 3
     inner_lr = 1e-4
     outer_lr = 1e-3
+    criterion = nn.CrossEntropyLoss()
+    num_workers = 0
+    train_print = 2                        # print the train result every (train_print) step
+    evaluation_point = 5                  # evaluate the model every (evaluation_point) step
+    
 
     train_transformer = transforms.Compose([
         # myNormalize("isic18", train=True),
@@ -69,12 +74,9 @@ class setting_config:
     else:
         raise Exception('datasets in not right!')
 
-    criterion = GT_BceDiceLoss(wb=1, wd=1)
-
     pretrained_path = './pre_trained/'
     distributed = False
     local_rank = -1
-    num_workers = 0
     seed = 42
     world_size = None
     rank = None
@@ -88,51 +90,51 @@ class setting_config:
     opt = 'AdamW'
     assert opt in ['Adadelta', 'Adagrad', 'Adam', 'AdamW', 'Adamax', 'ASGD', 'RMSprop', 'Rprop', 'SGD'], 'Unsupported optimizer!'
     if opt == 'Adadelta':
-        lr = 0.01 # default: 1.0 – coefficient that scale delta before it is applied to the parameters
+        lr = outer_lr # default: 1.0 – coefficient that scale delta before it is applied to the parameters
         rho = 0.9 # default: 0.9 – coefficient used for computing a running average of squared gradients
         eps = 1e-6 # default: 1e-6 – term added to the denominator to improve numerical stability 
         weight_decay = 0.05 # default: 0 – weight decay (L2 penalty) 
     elif opt == 'Adagrad':
-        lr = 0.01 # default: 0.01 – learning rate
+        lr = outer_lr # default: 0.01 – learning rate
         lr_decay = 0 # default: 0 – learning rate decay
         eps = 1e-10 # default: 1e-10 – term added to the denominator to improve numerical stability
         weight_decay = 0.05 # default: 0 – weight decay (L2 penalty)
     elif opt == 'Adam':
-        lr = 0.001 # default: 1e-3 – learning rate
+        lr = outer_lr # default: 1e-3 – learning rate
         betas = (0.9, 0.999) # default: (0.9, 0.999) – coefficients used for computing running averages of gradient and its square
         eps = 1e-8 # default: 1e-8 – term added to the denominator to improve numerical stability 
         weight_decay = 0.0001 # default: 0 – weight decay (L2 penalty) 
         amsgrad = False # default: False – whether to use the AMSGrad variant of this algorithm from the paper On the Convergence of Adam and Beyond
     elif opt == 'AdamW':
-        lr = 0.001 # default: 1e-3 – learning rate
+        lr = outer_lr # default: 1e-3 – learning rate
         betas = (0.9, 0.999) # default: (0.9, 0.999) – coefficients used for computing running averages of gradient and its square
         eps = 1e-8 # default: 1e-8 – term added to the denominator to improve numerical stability
         weight_decay = 1e-2 # default: 1e-2 – weight decay coefficient
         amsgrad = False # default: False – whether to use the AMSGrad variant of this algorithm from the paper On the Convergence of Adam and Beyond 
     elif opt == 'Adamax':
-        lr = 2e-3 # default: 2e-3 – learning rate
+        lr = outer_lr # default: 2e-3 – learning rate
         betas = (0.9, 0.999) # default: (0.9, 0.999) – coefficients used for computing running averages of gradient and its square
         eps = 1e-8 # default: 1e-8 – term added to the denominator to improve numerical stability
         weight_decay = 0 # default: 0 – weight decay (L2 penalty) 
     elif opt == 'ASGD':
-        lr = 0.01 # default: 1e-2 – learning rate 
+        lr = outer_lr # default: 1e-2 – learning rate 
         lambd = 1e-4 # default: 1e-4 – decay term
         alpha = 0.75 # default: 0.75 – power for eta update
         t0 = 1e6 # default: 1e6 – point at which to start averaging
         weight_decay = 0 # default: 0 – weight decay
     elif opt == 'RMSprop':
-        lr = 1e-2 # default: 1e-2 – learning rate
+        lr = outer_lr # default: 1e-2 – learning rate
         momentum = 0 # default: 0 – momentum factor
         alpha = 0.99 # default: 0.99 – smoothing constant
         eps = 1e-8 # default: 1e-8 – term added to the denominator to improve numerical stability
         centered = False # default: False – if True, compute the centered RMSProp, the gradient is normalized by an estimation of its variance
         weight_decay = 0 # default: 0 – weight decay (L2 penalty)
     elif opt == 'Rprop':
-        lr = 1e-2 # default: 1e-2 – learning rate
+        lr = outer_lr # default: 1e-2 – learning rate
         etas = (0.5, 1.2) # default: (0.5, 1.2) – pair of (etaminus, etaplis), that are multiplicative increase and decrease factors
         step_sizes = (1e-6, 50) # default: (1e-6, 50) – a pair of minimal and maximal allowed step sizes 
     elif opt == 'SGD':
-        lr = 0.01 # – learning rate
+        lr = outer_lr # – learning rate
         momentum = 0.9 # default: 0 – momentum factor 
         weight_decay = 0.05 # default: 0 – weight decay (L2 penalty) 
         dampening = 0 # default: 0 – dampening for momentum
@@ -140,7 +142,7 @@ class setting_config:
     
     sch = 'CosineAnnealingLR'
     if sch == 'StepLR':
-        step_size = epochs // 5 # – Period of learning rate decay.
+        step_size = epoch_num // 5 # – Period of learning rate decay.
         gamma = 0.5 # – Multiplicative factor of learning rate decay. Default: 0.1
         last_epoch = -1 # – The index of last epoch. Default: -1.
     elif sch == 'MultiStepLR':
