@@ -9,16 +9,22 @@ from    copy import deepcopy
 import sys
 from .basenet import SimpleNet
 from .basenet import UNet
+from .basenet import UnetPlusPlus
 sys.path.append('../')
 from configs.config_setting import setting_config
+import segmentation_models_pytorch as smp
+
+
 class Meta(nn.Module):
     """
     Meta Learner
     """
     def __init__(self):
         super(Meta, self).__init__()
-        config = setting_config 
+        config = setting_config
         self.base_net = UNet(config.in_channels,config.num_classes)
+        # self.base_net = smp.Unet(encoder_name='resnet34', encoder_depth=5, encoder_weights=None, decoder_use_batchnorm=True, decoder_channels=(256, 128, 64, 32, 16), decoder_attention_type=None, in_channels=3, classes=1, activation=None, aux_params=None)
+        # self.base_net = UnetPlusPlus(config.in_channels,config.num_classes)
         self.inner_lr = config.inner_lr
         self.outer_lr = config.outer_lr
         self.inner_steps = config.inner_steps
@@ -49,8 +55,6 @@ class Meta(nn.Module):
         """
         criterion = nn.CrossEntropyLoss()
         # calculate the loss of each images according to the masks
-        print(images.shape)
-        print(masks.shape)
         predict = model(images)
         temp_loss = criterion(predict,masks)
 

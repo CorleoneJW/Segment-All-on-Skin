@@ -124,3 +124,74 @@ class UNet(nn.Module):
         # 输出层
         output = self.output(c9)
         return output
+    
+"""
+U-Net++ structure
+"""
+class UnetEncoder(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super(UnetEncoder, self).__init__()
+        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1)
+        self.pool = nn.MaxPool2d(2)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        skip_connection = x
+        x = self.pool(x)
+        return x, skip_connection
+
+# 定义Unet++的Decoder部分
+class UnetDecoder(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super(UnetDecoder, self).__init__()
+        self.upconv = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=2, stride=2)
+        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1)
+
+    def forward(self, x, skip_connection):
+        x = self.upconv(x)
+        # skip_connection = F.interpolate(skip_connection, size=x.size()[2:], mode='bilinear')
+        x = torch.cat((x, skip_connection), dim=1)  # x.dimension + skip_connection = in_channels.dimension
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        return x
+
+# 定义Unet++模型
+class UnetPlusPlus(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super(UnetPlusPlus, self).__init__()
+        self.encoder1 = UnetEncoder(in_channels, 64)
+        self.encoder2 = UnetEncoder(64, 128)
+        self.encoder3 = UnetEncoder(128, 256)
+        self.encoder4 = UnetEncoder(256, 512)
+        
+        self.middleconv1 = nn.Conv2d(512, 1024, kernel_size=3, padding=1)
+        self.middleconv2 = nn.Conv2d(1024, 1024, kernel_size=3, padding=1)
+        
+        self.decoder4 = UnetDecoder(1024, 512)
+        self.decoder3 = UnetDecoder(512, 256)
+        self.decoder2 = UnetDecoder(256, 128)
+        self.decoder1 = UnetDecoder(128, 64)
+        
+        self.output = nn.Conv2d(64, out_channels, kernel_size=1)
+
+    def forward(self, x):
+        x, skip_connection1 = self.encoder1(x)
+        x, skip_connection2 = self.encoder2(x)
+        x, skip_connection3 = self.encoder3(x)
+        x, skip_connection4 = self.encoder4(x)  # 最后一层Encoder不需要skip connection
+
+        x = F.relu(self.middleconv1(x))
+        x = F.relu(self.middleconv2(x))
+        
+        x = self.decoder4(x, skip_connection4)  #x:1024->512, skip_connection4:512
+        x = self.decoder3(x, skip_connection3)  #x:512->256, skip_connection3:256
+        x = self.decoder2(x, skip_connection2)  #x:256->128, skip_connection2:128
+        x = self.decoder1(x, skip_connection1)  #x:128->64, skip_connection1:64
+        
+        x = self.output(x)
+        # x = torch.sigmoid(x)  # 使用sigmoid激活函数输出分割结果
+        
+        return x
