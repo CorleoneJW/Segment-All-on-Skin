@@ -8,7 +8,6 @@ import torch
 import timm
 from tensorboardX import SummaryWriter
 
-from engine import *
 import os
 import sys
 
