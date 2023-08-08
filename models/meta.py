@@ -5,14 +5,12 @@ from    torch.nn import functional as F
 from    torch.utils.data import TensorDataset, DataLoader
 from    torch import optim
 import  numpy as np
-from    learner import Learner
-from basenet import SimpleNet
-from basenet import UNet
 from    copy import deepcopy
 import sys
+from .basenet import SimpleNet
+from .basenet import UNet
 sys.path.append('../')
 from configs.config_setting import setting_config
-
 class Meta(nn.Module):
     """
     Meta Learner
@@ -20,7 +18,7 @@ class Meta(nn.Module):
     def __init__(self):
         super(Meta, self).__init__()
         config = setting_config 
-        self.base_net = SimpleNet(in_channels=config.in_channels,out_channels=config.num_classes)
+        self.base_net = UNet(config.in_channels,config.num_classes)
         self.inner_lr = config.inner_lr
         self.outer_lr = config.outer_lr
         self.inner_steps = config.inner_steps
@@ -32,7 +30,7 @@ class Meta(nn.Module):
         return loss
 
     def inner_loop(self, support_images, support_masks):
-        optimizer = optim.SGD(self.base_net.parameters(), lr=self.inner_loop)
+        optimizer = optim.SGD(self.base_net.parameters(), lr=self.inner_lr)
         
         for step in range(self.inner_steps):
             optimizer.zero_grad()
@@ -49,12 +47,14 @@ class Meta(nn.Module):
         images: "support_images:" [tensor([[[]]])，tensor([[[]]])] length: n_way * k_shots(k_query)
         write iteration for data
         """
-        loss = 0.0
-        for image, mask in images, masks:
-            # calculate the loss of each images according to the masks
-            pass
+        criterion = nn.CrossEntropyLoss()
+        # calculate the loss of each images according to the masks
+        print(images.shape)
+        print(masks.shape)
+        predict = model(images)
+        temp_loss = criterion(predict,masks)
 
-        return loss
+        return temp_loss
 
     if __name__ == "__main__":
         pass
