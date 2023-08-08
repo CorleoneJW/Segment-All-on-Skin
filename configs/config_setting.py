@@ -1,4 +1,5 @@
 from torchvision import transforms
+from torch import nn
 from utils import *
 
 from datetime import datetime
@@ -7,7 +8,7 @@ class setting_config:
     """
     the config of training or testing setting.
     """
-    gpu_id = '0'
+    gpu_id = '3'
     categories = ['mel','bcc','bkl']      # the categories of meta learning
     num_classes = len(categories)         # the number of categories
     epoch_num = 9000                    # the number of training the meta net
@@ -17,11 +18,11 @@ class setting_config:
     n_way = 3                       # n ways, should be smaller than the number of categories
     k_shot = 5                      # k shots, the number of each subset, k for support set
     k_query = 5                     # k for the evaluation, k for query set
-    resize_h = 600                    # the height of resize in transformer
-    resize_w = 450                  # the width of resize in transformer
+    resize_h = 512                    # the height of resize in transformer
+    resize_w = 512                  # the width of resize in transformer
     startidx = 0                     # the index that data starts
-    train_set = ".\\data\\HAM10000\\train" # the root path of train set
-    test_set = ".\\data\\HAM10000\\test"  # the root path of test set
+    train_set = "./data/HAM10000/train" # the root path of train set
+    test_set = "./data/HAM10000/test"  # the root path of test set
     in_channels = 3                         # According to the RBG image, the input channels should be 3
     inner_lr = 1e-4
     outer_lr = 1e-3
@@ -33,6 +34,7 @@ class setting_config:
 
     train_transformer = transforms.Compose([
         # myNormalize("isic18", train=True),
+        transforms.Resize((resize_w,resize_h)),
         transforms.ToTensor(),
         # myRandomHorizontalFlip(p=0.5),
         # myRandomVerticalFlip(p=0.5),
@@ -41,10 +43,12 @@ class setting_config:
     ])
     test_transformer = transforms.Compose([
         # myNormalize("isic18", train=False),
+        transforms.Resize((resize_w,resize_h)),
         transforms.ToTensor(),
         # myResize(resize_h, resize_w)
     ])
     mask_transformer = transforms.Compose([     # for train and test dataloader ,the mask transformer are the same
+        transforms.Resize((resize_w,resize_h)),
         maskToTensor(),
         # myResize(resize_h, resize_w)
     ])
