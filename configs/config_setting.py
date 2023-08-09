@@ -10,7 +10,7 @@ class setting_config:
     """
     gpu_id = '3'
     categories = ['mel','bcc','bkl']      # the categories of meta learning
-    num_classes = len(categories)         # the number of categories
+    num_classes = len(categories)+1         # the number of categories, add the background
     epoch_num = 9000                    # the number of training the meta net
     inner_steps = 2                    # the number of inner steps of iteration
     batch_size = 5                 # the batch size of training or testing
