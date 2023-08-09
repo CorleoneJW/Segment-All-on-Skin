@@ -13,6 +13,7 @@ from .basenet import UnetPlusPlus
 sys.path.append('../')
 from configs.config_setting import setting_config
 import segmentation_models_pytorch as smp
+from copy import deepcopy
 
 
 class Meta(nn.Module):
@@ -31,21 +32,21 @@ class Meta(nn.Module):
         self.meta_optimizer = optim.Adam(self.base_net.parameters(), lr=self.outer_lr)
     
     def forward(self, support_images, query_images, support_masks, query_masks):
-        updated_params = self.inner_loop(support_images,support_masks)
-        loss = self.compute_loss(updated_params, query_images,query_masks)
+        temp_net = self.inner_loop(support_images,support_masks)
+        loss = self.compute_loss(temp_net, query_images,query_masks)
         return loss
 
     def inner_loop(self, support_images, support_masks):
-        optimizer = optim.SGD(self.base_net.parameters(), lr=self.inner_lr)
-        
+        temp_net = deepcopy(self.base_net)
+        inner_optimizer = optim.SGD(temp_net.parameters(), lr=self.inner_lr)
+    
         for step in range(self.inner_steps):
-            optimizer.zero_grad()
-            loss = self.compute_loss(self.base_net, support_images, support_masks)
+            inner_optimizer.zero_grad()
+            loss = self.compute_loss(temp_net, support_images, support_masks)
             loss.backward()
-            optimizer.step()
+            inner_optimizer.step()
         
-        updated_params = self.base_net.state_dict().copy()
-        return updated_params
+        return temp_net
 
     def compute_loss(self, model, images, masks):
         # 根据数据计算损失，这里需要根据具体任务来实现
