@@ -14,6 +14,7 @@ sys.path.append('../')
 from configs.config_setting import setting_config
 import segmentation_models_pytorch as smp
 from copy import deepcopy
+import sklearn.metrics as metrics
 
 
 class Meta(nn.Module):
@@ -31,7 +32,7 @@ class Meta(nn.Module):
         self.inner_steps = config.inner_steps
         self.meta_optimizer = optim.Adam(self.base_net.parameters(), lr=self.outer_lr)
     
-    def forward(self, support_images, query_images, support_masks, query_masks):
+    def forward(self, support_images, support_masks, query_images, query_masks):
         temp_net = self.inner_loop(support_images,support_masks)
         loss = self.compute_loss(temp_net, query_images,query_masks)
         return loss
@@ -57,9 +58,19 @@ class Meta(nn.Module):
         criterion = nn.CrossEntropyLoss()
         # calculate the loss of each images according to the masks
         predict = model(images)
+        masks = torch.squeeze(masks,dim=1).long()
         temp_loss = criterion(predict,masks)
 
         return temp_loss
+
+    def evaluation_basenet(self,query_images,query_masks):
+        predicted = self.base_net(query_images)
+        predicted = torch.argmax(predicted,dim=1).long()
+        predict_numpy = predicted.detach().cpu().numpy().reshape(-1)
+        masks_numpy = query_masks.long().detach().cpu().numpy().reshape(-1)
+        accuracy = metrics.accuracy_score(masks_numpy,predict_numpy)
+        f1_score = metrics.f1_score(masks_numpy,predict_numpy,average=None)
+        return accuracy,f1_score
 
     if __name__ == "__main__":
         pass

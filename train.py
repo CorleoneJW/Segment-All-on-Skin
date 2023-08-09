@@ -64,7 +64,7 @@ def main(config):
 
     print('#----------Prepareing loss, opt, sch and amp----------#')
     criterion = config.criterion
-    meta_optimizer = get_optimizer(config, meta_model)
+    meta_optimizer = get_optimizer(config, meta_model.base_net)
     meta_scheduler = get_scheduler(config, meta_optimizer)
 
     print('#----------Set other params----------#')
@@ -86,10 +86,19 @@ def main(config):
             support_images, support_masks, query_images, query_masks = preprocess_batch(batch)
             support_images, support_masks, query_images, query_masks = support_images.to(device), support_masks.to(device), query_images.to(device), query_masks.to(device)
             meta_loss = meta_model(support_images,support_masks,query_images,query_masks)
-            print(meta_loss)
+            meta_loss.backward()
+            meta_optimizer.step()
             
-            if step % train_print() == 0:
-                print('step:',step,'\ttraining result ')
+            if step % train_print == 0:
+                accuracy,f1_score = meta_model.evaluation_basenet(query_images,query_masks)
+                log_info = f'steps: {step}, loss: {meta_loss}, accuracy: {accuracy:.4f}, f1_score: {f1_score}'
+                print("Train print",log_info)
+
+            if step % evaluation_point == 0:
+                accuracy,f1_score = meta_model.evaluation_basenet(query_images,query_masks)
+                log_info = f'steps: {step}, loss: {meta_loss}, accuracy: {accuracy:.4f}, f1_score: {f1_score}'
+                print("Evaluation:",log_info)
+
 
         # if total_loss < min_loss:
         #     min_loss = total_loss
