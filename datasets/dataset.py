@@ -119,20 +119,20 @@ class HAM_datasets(Dataset):
             for i,sample in enumerate(support_set):
                 if i == 0:
                     support_images = self.transform(Image.open(sample['image']).convert('RGB')).unsqueeze(0)
-                    support_masks = self.transform(Image.open(sample['mask']).convert('L')).unsqueeze(0)
+                    support_masks = self.mask_transform(Image.open(sample['mask']).convert('L')).unsqueeze(0)
                 else:
                     support_image = self.transform(Image.open(sample['image']).convert('RGB')).unsqueeze(0)
-                    support_mask = self.transform(Image.open(sample['mask']).convert('L')).unsqueeze(0)
+                    support_mask = self.mask_transform(Image.open(sample['mask']).convert('L')).unsqueeze(0)
                     support_images = torch.cat((support_images,support_image),dim=0)
                     support_masks = torch.cat((support_masks,support_mask),dim=0)
 
             for i,sample in enumerate(query_set):
                 if i == 0:
                     query_images = self.transform(Image.open(sample['image']).convert('RGB')).unsqueeze(0)
-                    query_masks = self.transform(Image.open(sample['mask']).convert('L')).unsqueeze(0)
+                    query_masks = self.mask_transform(Image.open(sample['mask']).convert('L')).unsqueeze(0)
                 else:
                     query_image = self.transform(Image.open(sample['image']).convert('RGB')).unsqueeze(0)
-                    query_mask = self.transform(Image.open(sample['mask']).convert('L')).unsqueeze(0)
+                    query_mask = self.mask_transform(Image.open(sample['mask']).convert('L')).unsqueeze(0)
                     query_images = torch.cat((query_images,query_image),dim=0)
                     query_masks = torch.cat((query_masks,query_mask),dim=0)
 
