@@ -67,7 +67,7 @@ class HAM_datasets(Dataset):
                 config.test_set, "masks")  # path of test set mask
         
         # generating the temp directory for the train or test
-        self.categories_dictionary = self.create_tempfolder(self.image_path,self.mask_path,self.categories)
+        # self.categories_dictionary = self.create_tempfolder(self.image_path,self.mask_path,self.categories)
     
         self.class_to_samples = {cls: self.load_samples(cls) for cls in self.categories}
         
@@ -172,8 +172,6 @@ class HAM_datasets(Dataset):
                         shutil.copy(source_path, destination_path)
         except Exception as e:
             print(f"Error occurred while copying：{str(e)}")
-
-        return categories_dictionary
 
 
 """
