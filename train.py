@@ -56,11 +56,17 @@ def main(config):
     testset_masks_path = "./HAM10000/test/masks/"      # the masks path for test dataset
 
     for category in categories:
-        # create corresponding folder for each categories
+        # prepare the address for folders
         category_images_train_path = os.path.join(trainset_images_path,category)
         category_masks_train_path = os.path.join(trainset_masks_path,category)
         category_images_test_path = os.path.join(testset_images_path,category)
         category_masks_test_path = os.path.join(testset_masks_path,category)
+        #delete the previously exsited folders
+        shutil.rmtree(category_images_train_path)
+        shutil.rmtree(category_masks_train_path)
+        shutil.rmtree(category_images_test_path)
+        shutil.rmtree(category_masks_test_path)
+        # create corresponding folder for each categories
         os.makedirs(category_images_train_path, exist_ok=True)
         os.makedirs(category_masks_train_path, exist_ok=True)
         os.makedirs(category_images_test_path, exist_ok=True)
