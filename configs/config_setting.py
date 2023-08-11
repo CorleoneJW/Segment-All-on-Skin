@@ -6,7 +6,18 @@ from datetime import datetime
 
 class setting_config:
     """
+    
     the config of training or testing setting.
+    category_dictionary = {         # the dictionary for different categories
+    'akiec':1,
+    'bcc':2,
+    'bkl':3,
+    'df':4,
+    'mel':5,
+    'nv':6,
+    'vasc':7,
+    }
+
     """
     gpu_id = '3'
     categories = ['mel','bcc','bkl']      # the categories of meta learning
