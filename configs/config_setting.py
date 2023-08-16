@@ -9,34 +9,34 @@ class setting_config:
     
     the config of training or testing setting.
     category_dictionary = {         # the dictionary for different categories
-    'akiec':1,
-    'bcc':2,
-    'bkl':3,
-    'df':4,
-    'mel':5,
-    'nv':6,
-    'vasc':7,
+    'akiec':,
+    'bcc':,
+    'bkl':,
+    'df':,
+    'mel':,
+    'nv':,
+    'vasc':,
     }
 
     """
-    gpu_id = '3'
-    categories = ['mel','bcc','bkl']      # the categories of meta learning
+    gpu_id = '1'
+    categories = ['mel','bcc',"bkl"]      # the categories of meta learning
     num_classes = len(categories)+1         # the number of categories, add the background
-    epoch_num = 9000                    # the number of training the meta net
+    epoch_num = 100                    # the number of training the meta net
     inner_steps = 2                    # the number of inner steps of iteration
-    batch_size = 5                 # the batch size of training or testing
+    batch_size = 1                 # the batch size of training or testing
     dataloader_bs = 1               # the batch size of dataloader(corresponding to dataloader_bs * n_way * k_shot every batch)
     n_way = 3                       # n ways, should be smaller than the number of categories
-    k_shot = 5                      # k shots, the number of each subset, k for support set
-    k_query = 5                     # k for the evaluation, k for query set
-    resize_h = 512                    # the height of resize in transformer
-    resize_w = 512                  # the width of resize in transformer
+    k_shot = 30                     # k shots, the number of each subset, k for support set
+    k_query = 30                     # k for the evaluation, k for query set
+    resize_h = 128                    # the height of resize in transformer
+    resize_w = 128                  # the width of resize in transformer
     startidx = 0                     # the index that data starts
     train_set = "./data/HAM10000/train" # the root path of train set
     test_set = "./data/HAM10000/test"  # the root path of test set
     in_channels = 3                         # According to the RBG image, the input channels should be 3
-    inner_lr = 1e-4
-    outer_lr = 1e-3
+    inner_lr = 1e-3
+    outer_lr = 1e-4
     criterion = nn.CrossEntropyLoss()
     num_workers = 0
     train_print = 2                        # print the train result every (train_print) step
@@ -118,7 +118,7 @@ class setting_config:
         lr = outer_lr # default: 1e-3 – learning rate
         betas = (0.9, 0.999) # default: (0.9, 0.999) – coefficients used for computing running averages of gradient and its square
         eps = 1e-8 # default: 1e-8 – term added to the denominator to improve numerical stability 
-        weight_decay = 0.0001 # default: 0 – weight decay (L2 penalty) 
+        weight_decay = outer_lr # default: 0 – weight decay (L2 penalty) 
         amsgrad = False # default: False – whether to use the AMSGrad variant of this algorithm from the paper On the Convergence of Adam and Beyond
     elif opt == 'AdamW':
         lr = outer_lr # default: 1e-3 – learning rate
