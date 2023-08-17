@@ -17,7 +17,7 @@ class HAM_datasets(Dataset):
     def __init__(self, config, train=True):
         super(HAM_datasets, self)
         self.categories = config.categories  # the list of categories
-        self.clsnum = len(self.categories)  # the length of categories
+        self.clsnum = config.num_classes  # the length of categories
         self.batch_size = config.batch_size  # batch of set, not batch of imgs
         self.n_way = config.n_way  # n-way
         self.k_shot = config.k_shot  # k-shot
@@ -32,18 +32,18 @@ class HAM_datasets(Dataset):
         self.train = train  # the mode like train and test
         self.batch_list = []
 
-        print(
-            "Train mode :%s, batch_size:%d, %d-way, %d-shot, %d-query, %d-resizeh, %d-resizew"
-            % (
-                self.train,
-                self.batch_size,
-                self.n_way,
-                self.k_shot,
-                self.k_query,
-                self.resize_h,
-                self.resize_w
-            )
-        )
+        # print(
+        #     "Train mode :%s, batch_size:%d, %d-way, %d-shot, %d-query, %d-resizeh, %d-resizew"
+        #     % (
+        #         self.train,
+        #         self.batch_size,
+        #         self.n_way,
+        #         self.k_shot,
+        #         self.k_query,
+        #         self.resize_h,
+        #         self.resize_w
+        #     )
+        # )
 
         if self.train == True:
             self.transform = config.train_transformer
@@ -182,3 +182,89 @@ dataloader: len: len(dataset)/param(batch_size)  e.g. 64/8 = 8
 train_loader: iteration item in train_loader: dictionary: {"support_images":..., "support_masks":..., "query_images":..., "query_masks":...,}  
 "support_images:" [tensor([[[]]])，tensor([[[]]])] length: n_way * k_shots(k_query)
 """
+
+class HAMALL_datasets(Dataset):
+    def __init__(self, config, train=True, categories=None,num_eachcat=None):
+        super(HAMALL_datasets, self)
+        if categories == None:
+            self.categories = config.categories
+        else:
+            self.categories = categories
+        self.num_classes = len(self.categories)+1
+        self.resize_h = config.resize_h  # resize height
+        self.resize_w = config.resize_w     # resize height
+        self.train = train
+        self.num_eachcat = num_eachcat
+        self.datalist = []
+
+        if self.train == True:
+            self.transform = config.train_transformer
+        else:
+            self.transform = config.test_transformer
+
+        self.mask_transform = config.mask_transformer
+
+        """
+        path of the dataset (images and masks)
+        """
+        if train == True:
+            self.image_path = os.path.join(
+                config.train_set, "images")  # path of train set images
+            self.mask_path = os.path.join(
+                config.train_set, "masks")  # path of train set mask
+        else:
+            self.image_path = os.path.join(
+                config.test_set, "images")  # path of test set images
+            self.mask_path = os.path.join(
+                config.test_set, "masks")  # path of test set mask
+
+        # get the file path pairs for images and masks every classes    
+        self.class_to_samples = {cls: self.load_samples(cls) for cls in self.categories}
+        # get the final datalist 
+        self.create_datalist()
+
+    def __getitem__(self, idx):
+        datalist = self.datalist
+        temp_datapair = datalist[idx]       # {'image':tensor,'mask':tensor}
+        image = temp_datapair['image']
+        mask = temp_datapair['mask']
+        return image,mask
+
+    def __len__(self):
+        return len(self.datalist)
+
+    def load_samples(self, cls):        # return the dictionary pair of images and masks file paths
+        images_dir = os.path.join(self.image_path, cls)
+        masks_dir = os.path.join(self.mask_path, cls)
+        image_files = os.listdir(images_dir)
+        samples = [
+            {
+                'image': os.path.join(images_dir, img),
+                'mask': os.path.join(masks_dir, img[:-4]+"_segmentation.png")
+            }
+            for img in image_files
+        ]
+        return samples
+    
+    def get_task(self):
+        
+        temp_datalist = []
+
+        for cls in self.categories:
+            if self.num_eachcat != None:
+                sampled_samples = random.sample(self.class_to_samples[cls],self.num_eachcat)
+            else:
+                sampled_samples = self.class_to_samples[cls]
+            temp_samples = sampled_samples[:]
+            temp_datalist.extend(temp_samples)
+            
+        return temp_datalist        # [{image:xxx1.jpg, mask:xxx1.png},{image:xxx2.jpg, mask:xxx2.png}]
+    
+
+    def create_datalist(self):
+        temp_datalist = self.get_task()
+        for i,sample in enumerate(temp_datalist):
+            image = self.transform(Image.open(sample['image']).convert('RGB')).unsqueeze(0)
+            mask = self.mask_transform(Image.open(sample['mask']).convert('L')).unsqueeze(0)
+            temp_datapair = {'image': image, 'mask': mask}
+            self.datalist.append(temp_datapair)
