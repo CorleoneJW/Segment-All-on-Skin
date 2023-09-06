@@ -270,7 +270,7 @@ class HAMALL_datasets(Dataset):
             self.datalist.append(temp_datapair)
 
 
-# datset for the data of bi-classification segmentation
+# datset for the data of bi-classification segmentation (now equal to the HAMALL_dataset)
 
 class HAMBinary_dataset(Dataset):
     def __init__(self, config, train=True, categories=None,num_eachcat=None):
@@ -282,7 +282,7 @@ class HAMBinary_dataset(Dataset):
         self.resize_h = config.resize_h  # resize height
         self.resize_w = config.resize_w     # resize height
         self.train = train
-        self.num_eachcat = num_eachcat
+        self.num_eachcat = num_eachcat      # number of data of each category in dataset
         self.datalist = []
 
         if self.train == True:
@@ -307,7 +307,7 @@ class HAMBinary_dataset(Dataset):
                 config.test_set, "masks")  # path of test set mask
 
         # get the file path pairs for images and masks every classes    
-        self.class_to_samples = {cls: self.load_samples(cls) for cls in self.categories}
+        self.class_to_samples = {cls: self.load_samples(cls) for cls in self.categories}        # [{iamge:xxx,mask:xxx},{iamge:xxx,mask:xxx}]
         # get the final datalist 
         self.create_datalist()
 
