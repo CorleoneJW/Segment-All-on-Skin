@@ -341,6 +341,7 @@ for epoch in range(start_epoch, config.epoch_num+1):
 
 # In[11]:
 
-
-print("Best dice in testset:",best_dice)
+best_result = "Best dice in testset:"+best_dice
+print(best_result)
+logger.info(best_result)
 
