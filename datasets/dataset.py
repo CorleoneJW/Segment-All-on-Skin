@@ -184,7 +184,7 @@ train_loader: iteration item in train_loader: dictionary: {"support_images":...,
 """
 
 class HAMALL_datasets(Dataset):
-    def __init__(self, config, train=True, categories=None,num_eachcat=None):
+    def __init__(self, config, train=True, val=False, categories=None,num_eachcat=None):
         super(HAMALL_datasets, self)
         if categories == None:
             self.categories = config.categories
@@ -212,6 +212,11 @@ class HAMALL_datasets(Dataset):
                 config.train_set, "images")  # path of train set images
             self.mask_path = os.path.join(
                 config.train_set, "masks")  # path of train set mask
+        elif val == True:
+            self.image_path = os.path.join(
+                config.val_set, "images")  # path of validation set images
+            self.mask_path = os.path.join(
+                config.val_set, "masks")  # path of validation set mask
         else:
             self.image_path = os.path.join(
                 config.test_set, "images")  # path of test set images
