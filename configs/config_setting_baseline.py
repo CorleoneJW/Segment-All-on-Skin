@@ -34,6 +34,7 @@ class setting_config:
     startidx = 0                     # the index that data starts
     train_set = "./data/HAM10000/train" # the root path of train set
     test_set = "./data/HAM10000/test"  # the root path of test set
+    val_set = "./data/HAM10000/val"  # the root path of validation set
     in_channels = 3                         # According to the RBG image, the input channels should be 3
     out_channels = 1
     inner_lr = 1e-3
