@@ -20,7 +20,7 @@ class setting_config:
 
     """
     gpu_id = '3'
-    categories = ['df']      # the categories of meta learning
+    categories = ['nv']      # the categories of meta learning
     num_classes = len(categories)+1         # the number of categories, add the background
     epoch_num = 200                    # the number of training the meta net
     inner_steps = 2                    # the number of inner steps of iteration
@@ -38,12 +38,12 @@ class setting_config:
     in_channels = 3                         # According to the RBG image, the input channels should be 3
     out_channels = 1
     inner_lr = 1e-3
-    outer_lr = 1e-6                          # as the lr in training baseline
+    outer_lr = 1e-5                          # as the lr in training baseline
     criterion = nn.BCEWithLogitsLoss()
     num_workers = 0
     train_print = 2                        # print the train result every (train_print) step
     evaluation_point = 5                  # evaluate the model every (evaluation_point) step
-    num_eachcat = None
+    num_eachcat = 10
     dict_select = "meta"
     
     if num_eachcat == None:
