@@ -43,7 +43,7 @@ class setting_config:
     num_workers = 0
     train_print = 2                        # print the train result every (train_print) step
     evaluation_point = 5                  # evaluate the model every (evaluation_point) step
-    num_eachcat = 10
+    num_eachcat = 20
     dict_select = "meta"
     
     if num_eachcat == None:
