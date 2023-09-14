@@ -20,9 +20,9 @@ class setting_config:
 
     """
     gpu_id = '3'
-    categories = ['nv']      # the categories of meta learning
+    categories = ['vasc']      # the categories of meta learning
     num_classes = len(categories)+1         # the number of categories, add the background
-    epoch_num = 200                    # the number of training the meta net
+    epoch_num = 30                    # the number of training the meta net
     inner_steps = 2                    # the number of inner steps of iteration
     batch_size = 32                 # the batch size of training or testing
     dataloader_bs = 1               # the batch size of dataloader(corresponding to dataloader_bs * n_way * k_shot every batch)
@@ -43,8 +43,8 @@ class setting_config:
     num_workers = 0
     train_print = 2                        # print the train result every (train_print) step
     evaluation_point = 5                  # evaluate the model every (evaluation_point) step
-    num_eachcat = 20
-    dict_select = "meta"
+    num_eachcat = None
+    dict_select = "baseline"
     
     if num_eachcat == None:
         network = dict_select+'Hamtest'
@@ -105,7 +105,7 @@ class setting_config:
     pretrained_path = './pre_trained/'
     distributed = False
     local_rank = -1
-    seed = 42
+    seed = 666
     world_size = None
     rank = None
     amp = False
