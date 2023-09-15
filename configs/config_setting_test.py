@@ -44,7 +44,7 @@ class setting_config:
     train_print = 2                        # print the train result every (train_print) step
     evaluation_point = 5                  # evaluate the model every (evaluation_point) step
     num_eachcat = None
-    dict_select = "baseline"
+    dict_select = "meta"
     
     if num_eachcat == None:
         network = dict_select+'Hamtest'
