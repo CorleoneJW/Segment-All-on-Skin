@@ -22,9 +22,9 @@ class setting_config:
     gpu_id = '3'
     categories = ['mel','bkl',"bcc"]      # the categories of meta learning
     num_classes = len(categories)+1         # the number of categories, add the background
-    epoch_num = 100                    # the number of training the meta net
+    epoch_num = 200                    # the number of training the meta net
     inner_steps = 2                    # the number of inner steps of iteration
-    batch_size = 1                 # the batch size of training or testing
+    batch_size = 64                 # the batch size of training or testing
     dataloader_bs = 1               # the batch size of dataloader(corresponding to dataloader_bs * n_way * k_shot every batch)
     n_way = 2                       # n ways, should be smaller than the number of categories
     k_shot = 10                     # k shots, the number of each subset, k for support set
@@ -34,15 +34,16 @@ class setting_config:
     startidx = 0                     # the index that data starts
     train_set = "./data/HAM10000/train" # the root path of train set
     test_set = "./data/HAM10000/test"  # the root path of test set
+    val_set = "./data/HAM10000/val"  # the root path of validation set
     in_channels = 3                         # According to the RBG image, the input channels should be 3
     out_channels = 1
     inner_lr = 1e-3
-    outer_lr = 1e-4
+    outer_lr = 1e-4                          # as the lr in training baseline
     criterion = nn.BCEWithLogitsLoss()
     num_workers = 0
     train_print = 2                        # print the train result every (train_print) step
     evaluation_point = 5                  # evaluate the model every (evaluation_point) step
-    
+    network = 'meta'
 
     train_transformer = transforms.Compose([
         # myNormalize("isic18", train=True),
@@ -71,7 +72,6 @@ class setting_config:
             catStr = catStr+"+"
         catStr = catStr + str(category)
     
-    network = 'maml'
     work_dir = 'results/' + network + '_' + catStr + '_' + datetime.now().strftime('%A_%d_%B_%Y_%Hh_%Mm_%Ss') + '/'
 
     model_config = {
