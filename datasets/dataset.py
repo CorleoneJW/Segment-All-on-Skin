@@ -273,3 +273,5 @@ class HAMALL_datasets(Dataset):
             mask = self.mask_transform(Image.open(sample['mask']).convert('L')).unsqueeze(0)
             temp_datapair = {'image': image, 'mask': mask}
             self.datalist.append(temp_datapair)
+
+
