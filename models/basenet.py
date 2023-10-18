@@ -5,6 +5,9 @@ from einops import rearrange
 
 from timm.models.layers import trunc_normal_
 import math
+from configs.config_setting import setting_config
+import numpy as np
+import random
 
 """
 Basenet privided for selecting
@@ -13,6 +16,12 @@ Basenet privided for selecting
 """
 SimpleNet for testing the validation
 """
+seed = setting_config.seed
+torch.manual_seed(seed)
+torch.cuda.manual_seed(seed)
+np.random.seed(seed)
+random.seed(seed)
+
 class SimpleNet(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(SimpleNet, self).__init__()
@@ -40,6 +49,8 @@ class SimpleNet(nn.Module):
             nn.Conv2d(128, 64, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
             nn.Conv2d(64, 64, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.ConvTranspose2d(64, 64, kernel_size=2, stride=2),
             nn.ReLU(inplace=True),
             nn.ConvTranspose2d(64, out_channels, kernel_size=2, stride=2)
         )
