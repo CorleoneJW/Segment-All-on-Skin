@@ -19,7 +19,7 @@ class setting_config:
     }
 
     """
-    gpu_id = '3'
+    gpu_id = '2'
     categories = ['mel','bkl',"bcc"]      # the categories of meta learning
     num_classes = len(categories)+1         # the number of categories, add the background
     epoch_num = 200                    # the number of training the meta net
@@ -44,7 +44,8 @@ class setting_config:
     train_print = 2                        # print the train result every (train_print) step
     evaluation_point = 5                  # evaluate the model every (evaluation_point) step
     network = 'baseline'
-
+    read_type = 100                        #the model of using which model corresponding to the read type (number is the size of train set)
+    
     train_transformer = transforms.Compose([
         # myNormalize("isic18", train=True),
         transforms.Resize((resize_w,resize_h)),
